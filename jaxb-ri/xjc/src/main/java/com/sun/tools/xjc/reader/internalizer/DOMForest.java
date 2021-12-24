@@ -451,6 +451,15 @@ public final class DOMForest {
      */
     public void weakSchemaCorrectnessCheck(SchemaFactory sf) {
         List<SAXSource> sources = new ArrayList<>();
+        String swarefSchemaSystemId =
+    	com.sun.tools.xjc.Utils.getSwarefSchemaSystemId();
+        SAXSource swaRefSource = createSAXSource(swarefSchemaSystemId);
+        try {
+            swaRefSource.getXMLReader().setFeature("http://xml.org/sax/features/namespace-prefixes",true);
+        } catch (SAXException e) {
+            throw new AssertionError(e);    // Xerces wants this. See 6395322.
+        }
+        sources.add(swaRefSource);
         for( String systemId : getRootDocuments() ) {
             Document dom = get(systemId);
             if (dom.getDocumentElement().getNamespaceURI().equals(Const.JAXB_NSURI))

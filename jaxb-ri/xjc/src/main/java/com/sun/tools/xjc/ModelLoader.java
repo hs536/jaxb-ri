@@ -48,6 +48,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.XMLFilterImpl;
+import com.sun.xml.xsom.parser.SchemaDocument;
 
 /**
  * Builds a {@link Model} object.
@@ -479,6 +480,20 @@ public final class ModelLoader {
             if (!dom.getDocumentElement().getNamespaceURI().equals(Const.JAXB_NSURI)) {
                 reader.parse(systemId);
             }
+        }
+
+        boolean swaRefSchemaExists = false;
+        java.util.Iterator<SchemaDocument> iter = reader.getDocuments().iterator();
+        while(iter.hasNext()) {
+            SchemaDocument sd = iter.next();
+            if("SWA_URI".equals(sd.getTargetNamespace())) {
+                swaRefSchemaExists = true;
+            }
+        }
+        if(!swaRefSchemaExists ){
+            String swaRefSchemaSystemId =
+                    Utils.getSwarefSchemaSystemId();
+            reader.parse(swaRefSchemaSystemId);
         }
 
         XSSchemaSet result = reader.getResult();
